@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0b1020" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="stylesheet" href="./assets/css/app.css" />
+  <title>종가매매</title>
+</head>
+<body>
+  <div class="header">
+    <div class="title">종가매매 (Closing Price Trading)</div>
+    <div class="sub">14:30~15:30 진입 · 15:59 시간외 체크 · 익일 09:00~09:05 청산</div>
+  </div>
+
+  <div class="container">
+    <div class="row" style="justify-content:space-between">
+      <div class="row">
+        <label class="small">날짜</label>
+        <input id="date" type="date" />
+      </div>
+      <div class="row">
+        <button class="btn danger" id="clearAll">전체삭제</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="today">오늘 후보</button>
+      <button class="tab" data-tab="patterns">패턴 도감</button>
+      <button class="tab" data-tab="journal">저널</button>
+      <button class="tab" data-tab="stats">통계</button>
+      <button class="tab" data-tab="settings">설정</button>
+    </div>
+
+    <!-- TODAY -->
+    <div id="panel-today" class="grid two">
+      <div class="card">
+        <h3>후보 추가</h3>
+        <div class="row">
+          <input id="c_symbol" placeholder="종목코드 (예: 005930)" />
+          <input id="c_name" placeholder="종목명(선택)" />
+        </div>
+        <div class="row" style="margin-top:10px">
+          <input id="c_theme" placeholder="테마/섹터 (예: 반도체)" style="flex:1" />
+          <select id="c_newsTier">
+            <option>Tier1(정책/정부)</option>
+            <option selected>Tier2(단독/핵심)</option>
+            <option>Tier3(일반)</option>
+          </select>
+          <select id="c_pattern">
+            <option selected>패턴1(20MA 회복)</option>
+            <option>패턴2(5MA 지지)</option>
+            <option>패턴3(Envelope 돌파)</option>
+          </select>
+        </div>
+        <div class="card" style="margin-top:10px;background:rgba(0,0,0,.06)">
+          <h3 style="margin-bottom:8px">체크리스트(7)</h3>
+          <div class="row small">
+            <label><input type="checkbox" id="ck_liquidity" checked> 거래대금/유동성</label>
+            <label><input type="checkbox" id="ck_leader" checked> 섹터 대장</label>
+            <label><input type="checkbox" id="ck_position" checked> 전고점/신고가</label>
+            <label><input type="checkbox" id="ck_candle" checked> 윗꼬리 짧음/장대양봉</label>
+            <label><input type="checkbox" id="ck_minute" checked> 분봉 우상향/안착</label>
+            <label><input type="checkbox" id="ck_orderbook"> 호가창(패러독스/흡수)</label>
+            <label><input type="checkbox" id="ck_afterhours"> 15:59 시간외 확인</label>
+          </div>
+        </div>
+        <div style="margin-top:10px">
+          <textarea id="c_notes" placeholder="메모 (1분봉 타점/매물대/주의사항 등)"></textarea>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn ok" id="addCandidate">후보 저장</button>
+          <span class="small">오늘 후보: <b id="todayCount">0</b>개</span>
+        </div>
+        <div class="small" style="margin-top:10px">
+          iOS 자동붙여넣기 제한 → 각 후보의 “텔레그램용 복사” 버튼을 누르고 @shahn01bot에 붙여넣기 하세요.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>오늘 후보 목록</h3>
+        <div id="candidateList" class="list"></div>
+      </div>
+    </div>
+
+    <!-- PATTERNS -->
+    <div id="panel-patterns" class="card" style="display:none">
+      <h3>핵심 차트 패턴 도감(요약)</h3>
+      <div id="patternsText"></div>
+      <hr>
+      <div class="small">
+        원칙: (1) 거래대금 상위 + (2) 섹터 1등 + (3) 패턴 1~3 중 하나 + (4) 분봉 안착 확인.
+      </div>
+    </div>
+
+    <!-- JOURNAL -->
+    <div id="panel-journal" style="display:none" class="grid two">
+      <div class="card">
+        <h3>거래 기록 추가</h3>
+        <div class="row">
+          <input id="t_date" type="date" />
+          <input id="t_symbol" placeholder="종목코드" />
+          <input id="t_name" placeholder="종목명(선택)" />
+        </div>
+        <div class="row" style="margin-top:10px">
+          <input id="t_entry" type="number" inputmode="decimal" placeholder="진입가" />
+          <input id="t_exit" type="number" inputmode="decimal" placeholder="청산가" />
+          <input id="t_qty" type="number" inputmode="numeric" placeholder="수량(선택)" />
+        </div>
+        <div style="margin-top:10px">
+          <textarea id="t_plan" placeholder="플랜(뉴스 Tier/패턴/타점/손절/익절 원칙)"></textarea>
+        </div>
+        <div style="margin-top:10px">
+          <textarea id="t_result" placeholder="결과/복기(09:00~09:05 청산 준수 여부, 실수 기록)"></textarea>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn ok" id="addTrade">저널 저장</button>
+          <span class="small">총 거래: <b id="tradeCount">0</b>개</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3>저널 목록</h3>
+        <div id="tradeList" class="list"></div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div id="panel-stats" class="card" style="display:none">
+      <h3>통계</h3>
+      <div id="statsBox"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="panel-settings" class="card" style="display:none">
+      <h3>설정 / 백업</h3>
+      <div class="row">
+        <button class="btn" id="exportJson">Export(JSON)</button>
+        <label class="btn" style="cursor:pointer">
+          Import(JSON)
+          <input id="importJson" type="file" accept="application/json" style="display:none" />
+        </label>
+      </div>
+      <hr>
+      <div id="settingsText"></div>
+    </div>
+
+  </div>
+
+  <script type="module" src="./assets/js/app.js"></script>
+</body>
+</html>
