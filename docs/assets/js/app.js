@@ -190,8 +190,18 @@ async function renderAuto(bustCache=false){
     $('#autoGen').textContent = (data.generatedAt || '-').replace('T',' ').replace(/\+09:00$/,'');
 
     const p = data?.market?.program;
+    const snaps = data?.market?.programSnapshots || [];
+    const delta = data?.market?.programDelta;
     if(p){
-      $('#autoMarket').textContent = `프로그램(참고): buy=${p.buy ?? '-'} sell=${p.sell ?? '-'} net=${p.net ?? '-'} · ${p.note || ''}`;
+      let line = `프로그램(참고): buy=${p.buy ?? '-'} sell=${p.sell ?? '-'} net=${p.net ?? '-'} · ${p.note || ''}`;
+      if (snaps.length){
+        const s = snaps.map(x=>`${x.time} net=${x.net ?? '-'}`).join(' / ');
+        line += `\n스냅샷: ${s}`;
+      }
+      if (delta && typeof delta.net === 'number'){
+        line += `\nΔnet (${delta.from}→${delta.to}): ${delta.net.toLocaleString('ko-KR')}`;
+      }
+      $('#autoMarket').textContent = line;
     }
 
     const items = (data.candidates || []).slice(0, 20);
