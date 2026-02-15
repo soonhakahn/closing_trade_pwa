@@ -203,7 +203,7 @@ async function renderAuto(bustCache=false){
           <div><b>${it.code}</b> <span class="small">${it.name||''}</span></div>
           <span class="badge">Score ${it.leaderScore ?? '-'} · ${it.market||''} · 거래대금rank ${it.amountRank ?? '-'}</span>
         </div>
-        <div class="small" style="margin-top:6px">등락률: ${it.rate==null?'-':(it.rate*100).toFixed(2)+'%'} · 거래대금(원단위 아님/원문표기 기반): ${num(it.amount)} · 외국인상위참고: ${it.foreignTop?'Y':'-'}</div>
+        <div class="small" style="margin-top:6px">등락률: ${it.rate==null?'-':(it.rate*100).toFixed(2)+'%'} · 거래대금: ${num(it.tradeValue ?? it.amount)} · 거래대금Δ: ${it.tradeValueGrowth==null?'-':(it.tradeValueGrowth*100).toFixed(1)+'%'} · 외인순매수(금액): ${num(it.foreignNetValue)} · 기관순매수(금액): ${num(it.instNetValue)}</div>
         <div class="row" style="margin-top:10px">
           <button class="btn ok" data-act="save" data-code="${it.code}">오늘 후보로 저장</button>
           <button class="btn" data-act="copy" data-code="${it.code}">요약 복사</button>
@@ -220,7 +220,7 @@ async function renderAuto(bustCache=false){
         if(!it) return;
 
         if(act==='copy'){
-          const text = `[자동후보] ${data.date}\n- ${it.code} ${it.name||''}\n- Score:${it.leaderScore ?? '-'} 거래대금rank:${it.amountRank ?? '-'} 등락:${it.rate==null?'-':(it.rate*100).toFixed(2)+'%'}\n- 참고: 외국인상위=${it.foreignTop?'Y':'-'}\n(앱에서 체크리스트/패턴 확인 후 종가 접근)`;
+          const text = `[자동후보] ${data.date}\n- ${it.code} ${it.name||''}\n- Score:${it.leaderScore ?? '-'} 거래대금rank:${it.amountRank ?? '-'} 등락:${it.rate==null?'-':(it.rate*100).toFixed(2)+'%'}\n- 거래대금:${it.tradeValue==null?'-':num(it.tradeValue)} Δ:${it.tradeValueGrowth==null?'-':(it.tradeValueGrowth*100).toFixed(1)+'%'}\n- 외인순매수(금액):${it.foreignNetValue==null?'-':num(it.foreignNetValue)} 기관순매수(금액):${it.instNetValue==null?'-':num(it.instNetValue)}\n(앱에서 체크리스트/패턴 확인 후 종가 접근)`;
           await navigator.clipboard.writeText(text);
           alert('복사 완료');
         }
