@@ -5,7 +5,8 @@ const ASSETS = [
   './manifest.webmanifest',
   './assets/css/app.css',
   './assets/js/app.js',
-  './assets/js/db.js'
+  './assets/js/db.js',
+  './reports/today.json'
 ];
 
 self.addEventListener('install', (e) => {

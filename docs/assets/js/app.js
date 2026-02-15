@@ -33,7 +33,7 @@ function num(n){
 }
 
 let db;
-let state = { tab: 'today', date: todayKST() };
+let state = { tab: 'auto', date: todayKST() };
 
 async function init(){
   db = await openDb();
@@ -62,6 +62,10 @@ function bindActions(){
   $('#date').addEventListener('change', async (e)=>{
     state.date = e.target.value;
     await render();
+  });
+
+  $('#reloadAuto').addEventListener('click', async ()=>{
+    await renderAuto(true);
   });
 
   $('#addCandidate').addEventListener('click', async ()=>{
@@ -154,17 +158,96 @@ function bindActions(){
 }
 
 async function render(){
+  $('#panel-auto').style.display = state.tab==='auto' ? '' : 'none';
   $('#panel-today').style.display = state.tab==='today' ? '' : 'none';
   $('#panel-patterns').style.display = state.tab==='patterns' ? '' : 'none';
   $('#panel-journal').style.display = state.tab==='journal' ? '' : 'none';
   $('#panel-stats').style.display = state.tab==='stats' ? '' : 'none';
   $('#panel-settings').style.display = state.tab==='settings' ? '' : 'none';
 
+  if (state.tab==='auto') return renderAuto();
   if (state.tab==='today') return renderToday();
   if (state.tab==='patterns') return renderPatterns();
   if (state.tab==='journal') return renderJournal();
   if (state.tab==='stats') return renderStats();
   if (state.tab==='settings') return renderSettings();
+}
+
+async function renderAuto(bustCache=false){
+  const list = $('#autoList');
+  list.innerHTML = '';
+  $('#autoDate').textContent = '-';
+  $('#autoGen').textContent = '-';
+  $('#autoMarket').textContent = '-';
+
+  try{
+    const ts = bustCache ? `?ts=${Date.now()}` : '';
+    const res = await fetch(`./reports/today.json${ts}`, { cache: 'no-store' });
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    $('#autoDate').textContent = data.date || '-';
+    $('#autoGen').textContent = (data.generatedAt || '-').replace('T',' ').replace(/\+09:00$/,'');
+
+    const p = data?.market?.program;
+    if(p){
+      $('#autoMarket').textContent = `프로그램(참고): buy=${p.buy ?? '-'} sell=${p.sell ?? '-'} net=${p.net ?? '-'} · ${p.note || ''}`;
+    }
+
+    const items = (data.candidates || []).slice(0, 20);
+    for (const it of items){
+      const el = document.createElement('div');
+      el.className = 'item';
+      el.innerHTML = `
+        <div class="top">
+          <div><b>${it.code}</b> <span class="small">${it.name||''}</span></div>
+          <span class="badge">Score ${it.leaderScore ?? '-'} · ${it.market||''} · 거래대금rank ${it.amountRank ?? '-'}</span>
+        </div>
+        <div class="small" style="margin-top:6px">등락률: ${it.rate==null?'-':(it.rate*100).toFixed(2)+'%'} · 거래대금(원단위 아님/원문표기 기반): ${num(it.amount)} · 외국인상위참고: ${it.foreignTop?'Y':'-'}</div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn ok" data-act="save" data-code="${it.code}">오늘 후보로 저장</button>
+          <button class="btn" data-act="copy" data-code="${it.code}">요약 복사</button>
+        </div>
+      `;
+      list.appendChild(el);
+    }
+
+    list.querySelectorAll('button[data-act]').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const act = btn.dataset.act;
+        const code = btn.dataset.code;
+        const it = (data.candidates||[]).find(x=>x.code===code);
+        if(!it) return;
+
+        if(act==='copy'){
+          const text = `[자동후보] ${data.date}\n- ${it.code} ${it.name||''}\n- Score:${it.leaderScore ?? '-'} 거래대금rank:${it.amountRank ?? '-'} 등락:${it.rate==null?'-':(it.rate*100).toFixed(2)+'%'}\n- 참고: 외국인상위=${it.foreignTop?'Y':'-'}\n(앱에서 체크리스트/패턴 확인 후 종가 접근)`;
+          await navigator.clipboard.writeText(text);
+          alert('복사 완료');
+        }
+
+        if(act==='save'){
+          // Save as candidate with minimal fields
+          const rec = {
+            id: uuid(),
+            date: state.date,
+            symbol: it.code,
+            name: it.name || '',
+            theme: '',
+            newsTier: 'Tier2(단독/핵심)',
+            pattern: '패턴1(20MA 회복)',
+            notes: `자동후보 Score:${it.leaderScore ?? '-'} 거래대금rank:${it.amountRank ?? '-'} 외국인상위:${it.foreignTop?'Y':'-'}`,
+            checklist: { liquidity:true, leader:true, candle:false, position:false, minute:false, orderbook:false, afterHours:false },
+            createdAt: Date.now()
+          };
+          await put(db, 'candidates', rec);
+          alert('오늘 후보로 저장했습니다. "오늘 후보" 탭에서 체크리스트/메모를 추가하세요.');
+        }
+      });
+    });
+
+  }catch(e){
+    list.innerHTML = `<div class="small">자동 후보 로드 실패: ${escapeHtml(String(e))}<br>보고서 파일이 아직 없거나 캐시일 수 있습니다. (설정→Export/Import는 로컬 데이터용이며 자동 후보는 reports/today.json을 읽습니다)</div>`;
+  }
 }
 
 async function renderToday(){
