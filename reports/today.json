@@ -1,6 +1,6 @@
 {
   "date": "2026-02-13",
-  "generatedAt": "2026-02-15T18:23:43+09:00",
+  "generatedAt": "2026-02-18T21:02:18+09:00",
   "source": {
     "primary": "pykrx (KRX)",
     "program": "https://finance.naver.com/sise/sise_program.nhn"
@@ -8,44 +8,13 @@
   "market": {
     "program": {
       "buy": 5,
-      "sell": null,
+      "sell": 1242136,
       "net": 5,
       "url": "https://finance.naver.com/sise/sise_program.nhn",
       "note": "Best-effort parse; market-level only (not per-ticker)."
     },
     "bizday": "20260213",
-    "prevday": "20260212",
-    "programSnapshots": [
-      {
-        "time": "14:50",
-        "buy": 5,
-        "sell": null,
-        "net": 5
-      },
-      {
-        "time": "15:10",
-        "buy": 5,
-        "sell": null,
-        "net": 5
-      },
-      {
-        "time": "15:22",
-        "buy": 5,
-        "sell": null,
-        "net": 5
-      },
-      {
-        "time": "18:25",
-        "buy": 5,
-        "sell": null,
-        "net": 5
-      }
-    ],
-    "programDelta": {
-      "from": "14:50",
-      "to": "18:25",
-      "net": 0
-    }
+    "prevday": "20260212"
   },
   "candidates": [
     {
@@ -356,6 +325,5 @@
   "disclaimer": [
     "프로그램 매매는 현재 시장(전체) 레벨 참고값입니다.",
     "LeaderScore는 휴리스틱이며 투자손익을 보장하지 않습니다."
-  ],
-  "updatedAt": "2026-02-16T15:22:04+09:00"
+  ]
 }
