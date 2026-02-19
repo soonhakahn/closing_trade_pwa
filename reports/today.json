@@ -14,7 +14,16 @@
       "note": "Best-effort parse; market-level only (not per-ticker)."
     },
     "bizday": "20260219",
-    "prevday": "20260213"
+    "prevday": "20260213",
+    "programSnapshots": [
+      {
+        "time": "14:50",
+        "buy": 5,
+        "sell": null,
+        "net": 5
+      }
+    ],
+    "programDelta": null
   },
   "candidates": [
     {
@@ -325,5 +334,6 @@
   "disclaimer": [
     "프로그램 매매는 현재 시장(전체) 레벨 참고값입니다.",
     "LeaderScore는 휴리스틱이며 투자손익을 보장하지 않습니다."
-  ]
+  ],
+  "updatedAt": "2026-02-19T14:50:03+09:00"
 }
