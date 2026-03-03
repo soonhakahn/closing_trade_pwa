@@ -8,7 +8,7 @@
   "market": {
     "program": {
       "buy": 5,
-      "sell": 5644353,
+      "sell": null,
       "net": 5,
       "url": "https://finance.naver.com/sise/sise_program.nhn",
       "note": "Best-effort parse; market-level only (not per-ticker)."
@@ -351,5 +351,5 @@
     "프로그램 매매는 현재 시장(전체) 레벨 참고값입니다.",
     "LeaderScore는 휴리스틱이며 투자손익을 보장하지 않습니다."
   ],
-  "updatedAt": "2026-03-03T15:10:05+09:00"
+  "updatedAt": "2026-03-03T15:22:03+09:00"
 }
